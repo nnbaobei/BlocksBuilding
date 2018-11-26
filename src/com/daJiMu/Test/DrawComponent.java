@@ -2,7 +2,7 @@ package com.daJiMu.Test;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.awt.geom.Area;
 
 import javax.swing.*;
 
@@ -55,9 +55,12 @@ public class DrawComponent extends JComponent {
 	public static ShapeRoot currentShape;
 	
 	//public ArrayList<ShapeRoot> dropShape = new ArrayList<ShapeRoot>();
+	/**
+	 * 底部初始区域
+	 */
+	private static final Shape1 BOTTOM_SP = new Shape1(WALL_WIDTH,10,WALL_WIDTH/2+WALL_X,WALL_HEIGHT+WALL_Y+5);
 	
-	private static final Shape1 BOTTOM_SP = new Shape1(WALL_WIDTH,2,WALL_WIDTH/2+WALL_X,WALL_HEIGHT+WALL_Y+1);
-	
+	private Area areaTotal = new Area(BOTTOM_SP);
 	
 	private boolean bol = false;
 	
@@ -83,6 +86,9 @@ public class DrawComponent extends JComponent {
 		paintWall(g);
 		paintWait(g);
 		BOTTOM_SP.drawShape(g);
+		/*Graphics2D g2 = (Graphics2D)g;
+		g2.setColor(Color.BLACK);
+		g2.fill(areaTotal);*/
 		if (bol) {
 			bol = false;
 			timer.start();
@@ -107,14 +113,16 @@ public class DrawComponent extends JComponent {
 	public void paintWait(Graphics g) {
 		g.drawRect(WAIT_X, WAIT_Y, WAIT_WIDTH, WAIT_HEIGHT);
 		// 外层循环控制行数
-		int index = 0;
+		int index = areaTool.shapes.size();
+		//使用listSize控制循环，防止产生indexOutOfBoundsException
 		for (int i = 0; i < wall.length; i++) {
 			// 内存循环控制列数
 			for (int j = 0; j < wall[0].length; j++) {
 				//绘制网格
 				g.drawRect(wall[i][j].x, wall[i][j].y, Cell.col, Cell.row);
 				//绘制图形
-				areaTool.shapes.get(index++).drawShape(g);
+				if (index <= 0) continue;
+				areaTool.shapes.get(--index).drawShape(g);
 			}
 		}
 	}
@@ -139,31 +147,73 @@ public class DrawComponent extends JComponent {
 	 * 定时器，用于块的下落动画
 	 */
 	public void init() {
-		timer = new Timer(10, e -> {
-			if (currentShape != null && currentShape.x > WALL_X && currentShape.x < WALL_X + WALL_WIDTH) {
+		timer = new Timer(1, e -> {
+			while(currentShape == null);
+			switch(currentShape.shapeState) {
+			case ShapeRoot.DEFALUT_STATE: 
+				//要判断这个块是否需要改变状态 -- 下落
+				if (currentShape.x > WALL_X && currentShape.x < WALL_X + WALL_WIDTH - currentShape.width
+						&& !currentShape.intersects(areaTotal)) {
+					currentShape.shapeState = ShapeRoot.DROP_STATE;
+				}
+				break;
+			case ShapeRoot.DROP_STATE:
+				//判断是否需要将状态改变为 -- 接触
+				if(currentShape.intersects(areaTotal)){
+			
+					currentShape.shapeState = ShapeRoot.CROSS_STATE;
+					areaTotal.add(currentShape.toArea());
+					System.out.println("state changed");
+				}
+				//判断是否需要将状态改变为 -- 默认(拉进去又拉出来)
+				if(currentShape.x < WALL_X || currentShape.x > WALL_X + WALL_WIDTH - currentShape.width) {
+					currentShape.shapeState = ShapeRoot.DEFALUT_STATE;
+				}
+				break;
+			case ShapeRoot.CROSS_STATE:
+				//判断是否需要将状态改变为 -- 稳定
+				//TODO 执行翻转逻辑,翻转之后稳定。判断重心位置是否在多个触点之间，如果是接触线，则变为线段两端点
+				currentShape.shapeState = ShapeRoot.STABLE_STATE;
+				break;
+			case ShapeRoot.STABLE_STATE:
+				//稳定状态的图形要一直判断自己的状态，万一不再稳定了呢？
+				break;
+			}
+			
+			/*if (currentShape.x > WALL_X && currentShape.x < WALL_X + WALL_WIDTH - currentShape.width
+					&& !currentShape.intersects(areaTotal)) {
 				//先判断当前块符合下落条件，则将当前块的isDrop设为true
 				areaTool.shapes.get(areaTool.shapes.indexOf(currentShape)).isDrop = true;
 				//判断当前块符合被判断相交条件，则将当前块的isTrack设为true
-				areaTool.shapes.get(areaTool.shapes.indexOf(currentShape)).isTrack = true;
-			}else if(areaTool.shapes.contains(currentShape)){
+				//areaTool.shapes.get(areaTool.shapes.indexOf(currentShape)).isTrack = true;
+			}else if(areaTool.shapes.contains(currentShape) && currentShape.intersects(areaTotal)){
 				//当前块已不符合下落条件，则将当前块的isDrop设为false
 				areaTool.shapes.get(areaTool.shapes.indexOf(currentShape)).isDrop = false;
-			}
+				//将当前块添加至域
+				System.out.println("添加域");
+				areaTotal.add(areaTool.shapes.get(areaTool.shapes.indexOf(currentShape)).toArea());
+				areaTool.shapes.remove(areaTool.shapes.indexOf(currentShape));
+			}else if(areaTool.shapes.contains(currentShape)){
+				areaTool.shapes.get(areaTool.shapes.indexOf(currentShape)).isDrop = false;
+			}*/
 			for (ShapeRoot cur : areaTool.shapes){
-				/*for (ShapeRoot cu : areaTool.shapes) {
-					if (!cur.toString().equals(cu.toString()) && cur.isTrack && cu.intersects(cur)) {
-						cur.isDrop = false;
-						//System.out.println("已经触底");
-					}
-				}*/
-				//循环判断所有块，满足下落条件的执行下落逻辑，限定下落截止位置
-				if (cur.isDrop && cur.x > WALL_X && cur.x < WALL_X + WALL_WIDTH - cur.width
-						&& cur.y > WALL_Y && cur.y < WALL_Y + WALL_HEIGHT - cur.hight) {
-					//System.out.println("开始下落");
+				switch(cur.shapeState) {
+				case ShapeRoot.DEFALUT_STATE: 
+					//default 状态的块，不用管它
+					break;
+				case ShapeRoot.DROP_STATE:
+					//执行下落逻辑
 					cur.centerY ++;
 					repaint();
+					break;
+				case ShapeRoot.CROSS_STATE:
+					//TODO 执行翻转逻辑
+					
+					break;
+				case ShapeRoot.STABLE_STATE:
+					//稳定状态的图形要一直判断自己的状态，万一不再稳定了呢？
+					break;
 				}
-				//对于每块，都要判断它与其他的块是否相交了
 			}
 		});
 	}
@@ -183,11 +233,11 @@ public class DrawComponent extends JComponent {
 		 */
 		@Override
 		public void mouseDragged(MouseEvent event) {
-			if (currentShape.contains(event.getPoint())) {
-				//进入目标图形，且点击后
+			if (currentShape != null && currentShape.shapeState != ShapeRoot.STABLE_STATE && currentShape.contains(event.getPoint())) {
+				//进入目标图形，且点击后 且当前图形不是在稳定状态
 				currentShape.centerX = event.getX();
 				currentShape.centerY = event.getY();
-				repaint();	
+				repaint();
 			}
 		}
 		/**
@@ -202,11 +252,6 @@ public class DrawComponent extends JComponent {
 				currentShape = areaTool.getCurrent();
 			}else {
 				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-				if (currentShape != null && currentShape.centerX > WALL_X && currentShape.centerX < WALL_X+WALL_WIDTH
-						&& currentShape.centerY > WALL_Y && currentShape.centerY < WALL_Y+WALL_HEIGHT){
-					//todo 触发下落
-					bol = true;
-				}
 			}
 		}
 		

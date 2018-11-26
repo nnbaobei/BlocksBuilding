@@ -17,10 +17,6 @@ public class Shape5 extends ShapeRoot {
 	 * *****
 	 * *****
 	 */
-	{		
-		width = 180;
-		hight = 30;
-	}
 	
 	/**
 	 * 
@@ -34,6 +30,7 @@ public class Shape5 extends ShapeRoot {
 		x = centerX - width / 2;
 		y = centerY - hight / 2;
 		rect = new Rectangle2D.Double(x,y,width,hight);
+		localShape = AffineTransform.getRotateInstance(Math.toRadians(angle), centerX, centerY).createTransformedShape(rect);
 	}
 	
 	/**
@@ -42,9 +39,28 @@ public class Shape5 extends ShapeRoot {
 	 * @return
 	 */
 	public boolean intersects(ShapeRoot rec) {
-		Area a = new Area(this.rect);
+		Area a = this.toArea();
 		a.intersect(new Area(rec));
 		return !a.isEmpty();
+	}
+	
+	/**
+	 * 判断与其他域是否相撞
+	 * @param rec 参数形状
+	 * @return
+	 */
+	public boolean intersects(Area area) {
+		Area as = this.toArea();
+		as.intersect(area);
+		return !as.isEmpty();
+	}
+	
+	/**
+	 * 将目标图形转化为区域
+	 */
+	@Override
+	public Area toArea() {
+		return new Area(localShape);
 	}
 
 	@Override
@@ -55,10 +71,12 @@ public class Shape5 extends ShapeRoot {
 		g2.setColor(Color.MAGENTA);
 		x = centerX - width / 2;
 		y = centerY - hight / 2;
-		g2.rotate(Math.toRadians(angle),centerX,centerY);
-		g2.fill(rect);//使用fill方法，则创建的图形颜色为实心	
+		localShape = AffineTransform.getRotateInstance(Math.toRadians(angle), centerX, centerY).createTransformedShape(rect);
+		g2.fill(localShape);
+		//g2.rotate(Math.toRadians(angle),centerX,centerY);
+		//g2.fill(rect);//使用fill方法，则创建的图形颜色为实心	
 		g2.setColor(Color.BLACK);
-		g2.rotate(Math.toRadians(-angle),centerX,centerY);
+		//g2.rotate(Math.toRadians(-angle),centerX,centerY);
 	}
 	
 	/**

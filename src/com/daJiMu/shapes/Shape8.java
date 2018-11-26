@@ -7,10 +7,12 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.FlatteningPathIterator;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.awt.geom.RoundRectangle2D;
 
 public class Shape8 extends ShapeRoot {
 	
@@ -53,6 +55,17 @@ public class Shape8 extends ShapeRoot {
 	}
 	
 	/**
+	 * 判断与其他域是否相撞
+	 * @param rec 参数形状
+	 * @return
+	 */
+	public boolean intersects(Area area) {
+		Area as = this.toArea();
+		as.intersect(area);
+		return !as.isEmpty();
+	}
+	
+	/**
 	 * 判断某个点是否在矩形内
 	 */
 	public boolean contains(Point2D p) {
@@ -74,6 +87,16 @@ public class Shape8 extends ShapeRoot {
 		Double xi = ro2 * Math.cos(thx2) + centerX;
 		Double yi = ro2 * Math.sin(thx2) + centerY;
 		return rect1.contains(xi,yi) && !rect2.contains(xi,yi);
+	}
+	
+	/**
+	 * 将目标图形转化为区域
+	 */
+	@Override
+	public Area toArea() {
+		Area a = new Area(rect1);
+		a.subtract(new Area(rect2));
+		return a;
 	}
 
 	@Override
@@ -98,7 +121,7 @@ public class Shape8 extends ShapeRoot {
 	 */
 	@Override
 	public Rectangle getBounds() {
-		return rect.getBounds();
+		return rect1.getBounds();
 	}
 
 	/**
@@ -106,7 +129,7 @@ public class Shape8 extends ShapeRoot {
 	 */
 	@Override
 	public Rectangle2D getBounds2D() {
-		return rect.getBounds2D();
+		return rect1.getBounds2D();
 	}
 
 	/**
@@ -122,7 +145,7 @@ public class Shape8 extends ShapeRoot {
 	 */
 	@Override
 	public boolean intersects(double x, double y, double w, double h) {
-		return rect.intersects(x, y, w, h);
+		return rect1.intersects(x, y, w, h);
 	}
 
 	/**
@@ -130,7 +153,7 @@ public class Shape8 extends ShapeRoot {
 	 */
 	@Override
 	public boolean intersects(Rectangle2D r) {
-		return rect.intersects(r);
+		return rect1.intersects(r);
 	}
 
 	/**
@@ -138,7 +161,7 @@ public class Shape8 extends ShapeRoot {
 	 */
 	@Override
 	public boolean contains(double x, double y, double w, double h) {
-		return rect.contains(x, y, w, h);
+		return rect1.contains(x, y, w, h);
 	}
 
 	/**
@@ -146,7 +169,7 @@ public class Shape8 extends ShapeRoot {
 	 */
 	@Override
 	public boolean contains(Rectangle2D r) {
-		return rect.contains(r);
+		return rect1.contains(r);
 	}
 
 	/**
@@ -154,7 +177,7 @@ public class Shape8 extends ShapeRoot {
 	 */
 	@Override
 	public PathIterator getPathIterator(AffineTransform at) {
-		return rect.getPathIterator(at);
+		return rect1.getPathIterator(at);
 	}
 
 	/**

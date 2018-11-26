@@ -1,7 +1,10 @@
 package com.daJiMu.tools;
 
-import com.daJiMu.shapes.ShapeRoot;
-
+/**
+ * 该类定义了候选区的网格大小和位置
+ * @author 100622161
+ *
+ */
 public class Cell {
 	//高度120，宽度180
 	public static int row = 120;
@@ -12,8 +15,6 @@ public class Cell {
 	public int x;
 	public int y;
 	
-	//每个cell中都包含一个随机的块,初始化时使用
-	//public ShapeRoot shape;
 
 	public Cell(int x, int y) {
 		super();

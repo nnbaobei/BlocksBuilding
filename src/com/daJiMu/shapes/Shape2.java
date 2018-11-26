@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -19,11 +20,7 @@ public class Shape2 extends ShapeRoot {
 	 * *****
 	 *  ***
 	 */
-	{		
-		width = 120;
-		hight = 104;
-		
-		
+	{
 		xPoints = new int[]{width/4 + x,0 + x,width/4 + x,3*width/4 + x,width + x,3*width/4 + x};
 		yPoints = new int[]{0 + y,hight/2 + y,hight + y,hight + y,hight/2 + y,0 + y};
 	}
@@ -39,18 +36,27 @@ public class Shape2 extends ShapeRoot {
 		super(width,hight,centerX,centerY);
 		x = centerX - width / 2;
 		y = centerY - hight / 2;
-		rect = new Rectangle2D.Double(x,y,width,hight);
+		rect = new Ellipse2D.Double(x,y,(width+hight)/2,(width+hight)/2);
+		localShape = AffineTransform.getRotateInstance(Math.toRadians(angle), centerX, centerY).createTransformedShape(rect);
 	}
 	
 	/**
-	 * 判断与其他矩形是否相撞
-	 * @param rec
+	 * 判断与其他域是否相撞
+	 * @param rec 参数形状
 	 * @return
 	 */
-	public boolean intersects(ShapeRoot rec) {
-		Area a = new Area(this.rect);
-		a.intersect(new Area(rec));
-		return !a.isEmpty();
+	public boolean intersects(Area area) {
+		Area as = this.toArea();
+		as.intersect(area);
+		return !as.isEmpty();
+	}
+	
+	/**
+	 * 将目标图形转化为区域
+	 */
+	@Override
+	public Area toArea() {
+		return new Area(localShape);
 	}
 	
 	/**
@@ -95,19 +101,20 @@ public class Shape2 extends ShapeRoot {
 	public void drawShape(Graphics g) {
 		//Rectangle2D rect = new Rectangle2D.Double(x,y,width,hight);
 		Graphics2D g2 = (Graphics2D) g;
-		rect = new Rectangle2D.Double(x,y,width,hight);
+		rect = new Ellipse2D.Double(x,y,(width+hight)/2,(width+hight)/2);
 		g2.setColor(Color.CYAN);
 		x = centerX - width / 2;
 		y = centerY - hight / 2;
 		g2.rotate(Math.toRadians(angle),centerX,centerY);
 		xPoints = new int[]{width/4 + x,0 + x,width/4 + x,3*width/4 + x,width + x,3*width/4 + x};
 		yPoints = new int[]{0 + y,hight/2 + y,hight + y,hight + y,hight/2 + y,0 + y};
+		
+		localShape = AffineTransform.getRotateInstance(Math.toRadians(angle), centerX, centerY).createTransformedShape(rect);
+		//g2.fill(localShape);
+		
 		g2.fillPolygon(xPoints, yPoints, 6);//使用fill方法，则创建的图形颜色为实心
 		g2.setColor(Color.BLACK);	
 		g2.rotate(Math.toRadians(-angle),centerX,centerY);
-		
-		Area a = new Area();
-		
 	}
 	
 	/**

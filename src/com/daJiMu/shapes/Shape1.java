@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
@@ -24,6 +25,7 @@ public class Shape1 extends ShapeRoot {
 		x = centerX - width / 2;
 		y = centerY - hight / 2;
 		rect = new Rectangle2D.Double(x,y,width,hight);
+		localShape = AffineTransform.getRotateInstance(Math.toRadians(angle), centerX, centerY).createTransformedShape(rect);
 	}
 	
 	public void init() {
@@ -31,14 +33,22 @@ public class Shape1 extends ShapeRoot {
 	}
 	
 	/**
-	 * 判断与其他矩形是否相撞
-	 * @param rec
+	 * 判断与其他域是否相撞
+	 * @param rec 参数形状
 	 * @return
 	 */
-	public boolean intersects(ShapeRoot rec) {
-		Area a = new Area(this.rect);
-		a.intersect(new Area(rec));
-		return !a.isEmpty();
+	public boolean intersects(Area area) {
+		Area as = this.toArea();
+		as.intersect(area);
+		return !as.isEmpty();
+	}
+	
+	/**
+	 * 将目标图形转化为区域
+	 */
+	@Override
+	public Area toArea() {
+		return new Area(localShape);
 	}
 	
 	/**
@@ -51,20 +61,21 @@ public class Shape1 extends ShapeRoot {
 		 * 以重心为原点建立极坐标系
 		 * 极坐标形式表示的p点坐标
 		 */
-		Double ro1 = p.distance(centerX,centerY);
-		Double thx1 = Math.atan((p.getY() - centerY)/(p.getX() - centerX));
+		//Double ro1 = p.distance(centerX,centerY);
+		//Double thx1 = Math.atan((p.getY() - centerY)/(p.getX() - centerX));
 		/**
 		 * 转换后的p'点的极坐标
 		 */
-		Double ro2 = ro1;
-		Double thx2 = thx1 - Math.toRadians(angle);
+		//Double ro2 = ro1;
+		//Double thx2 = thx1 - Math.toRadians(angle);
 		/**
 		 * 将极坐标下的点转换到直角坐标，并移动原点
 		 */
-		Double xi = ro2 * Math.cos(thx2) + centerX;
-		Double yi = ro2 * Math.sin(thx2) + centerY;
+		//Double xi = ro2 * Math.cos(thx2) + centerX;
+		//Double yi = ro2 * Math.sin(thx2) + centerY;
 		
-		return rect.contains(new Point2D.Double(xi,yi));
+		//return rect.contains(new Point2D.Double(xi,yi));
+		return localShape.contains(p);
 	}
 
 	@Override
@@ -74,12 +85,16 @@ public class Shape1 extends ShapeRoot {
 		g2.setColor(Color.BLUE);
 		x = centerX - width / 2;
 		y = centerY - hight / 2;
+		
+		localShape = AffineTransform.getRotateInstance(Math.toRadians(angle), centerX, centerY).createTransformedShape(rect);
+        g2.fill(localShape);
+		
 		//旋转画笔，画当前图形
-		g2.rotate(Math.toRadians(angle),centerX,centerY);
+		//g2.rotate(Math.toRadians(angle),centerX,centerY);
 		//使用fill方法，则创建的图形颜色为实心	
-		g2.fill(rect);
+		//g2.fill(rect);
 		//每次画完图形要把画笔旋转回来，否则后面画的图形都转了
-		g2.rotate(Math.toRadians(-angle),centerX,centerY);
+		//g2.rotate(Math.toRadians(-angle),centerX,centerY);
 		g2.setColor(Color.BLACK);
 	}
 
@@ -154,4 +169,5 @@ public class Shape1 extends ShapeRoot {
 	public PathIterator getPathIterator(AffineTransform at, double flatness) {
 		return rect.getPathIterator(at, flatness);
 	}
+
 }

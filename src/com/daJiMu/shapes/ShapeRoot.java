@@ -5,6 +5,7 @@ import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RectangularShape;
 
 /**
  * 所有图形类的父类，包含图形的全部参数等
@@ -43,17 +44,25 @@ public abstract class ShapeRoot implements Shape{
 	public int[] xPoints;
 	public int[] yPoints;
 	
-	protected Rectangle2D rect;
+	protected RectangularShape rect;
 	
 	/**
-	 * 用于设置该图形是否应该下落
+	 * 与BASE_AREA的接触区域，提取点集
 	 */
-	public boolean isDrop = false;
+	protected Rectangle2D touchArea;
 	
 	/**
-	 * 用于设置该图形是否用于判断相交
+	 * 用状态码的形式来保存状态，修改简单，使用灵活
 	 */
-	public boolean isTrack = false;
+	public int shapeState = DEFALUT_STATE;
+	
+	public static final int DEFALUT_STATE = 1;
+	public static final int DROP_STATE = 2;
+	public static final int CROSS_STATE = 3;
+	public static final int STABLE_STATE = 4;
+	
+	protected Shape localShape;
+	
 	/**
 	 * 构造方法，初始化时指定
 	 * @param width 宽度
@@ -103,19 +112,20 @@ public abstract class ShapeRoot implements Shape{
 		switch(num) {
 		case 0:s = new Shape1(60,120,centerX,centerY);break;//长方形1
 		case 1:s = new Shape2(120,104,centerX,centerY);break;//正六边形
-		case 2:s = new Shape3(80,120,57,centerX,centerY);break;//梯型
+		case 2:s = new Shape3(80,60,57,centerX,centerY);break;//梯型
 		case 3:s = new Shape4(120,60,centerX,centerY);break;//等腰直角三角形
 		case 4:s = new Shape5(180,30,centerX,centerY);break;//长方形2
 		case 5:s = new Shape6(80,69,centerX,centerY);break;//等边三角形
 		case 6:s = new Shape5(90,30,centerX,centerY);break;//长方形3
 		case 7:s = new Shape1(60,60,centerX,centerY);break;//正方形
-		case 8:s = new Shape7(60,60,centerX,centerY);break;//半圆
+		case 8:s = new Shape7(60,30,centerX,centerY);break;//半圆
 		case 9:s = new Shape8(120,60,centerX,centerY);break;//拱桥
 		}
 		return s;
 	}
 	/**
 	 * 判断某点（鼠标点）在不在该图形内部，用于鼠标变形方法
+	 * 该方法会被每个子类重写，用于做特征点的旋转
 	 * @param p 待检测的点
 	 * @return
 	 */
@@ -139,10 +149,21 @@ public abstract class ShapeRoot implements Shape{
 	public boolean intersects(ShapeRoot rec) {
 		return false;
 	}
+	/**
+	 * 判断与其他域是否相撞
+	 * @param rec 参数形状
+	 * @return
+	 */
+	public boolean intersects(Area area) {
+		area.intersect(new Area(this));
+		return !area.isEmpty();
+	}
 	
 	@Override
 	public String toString() {
 		return ""+width+"-"+hight;
 	}
+	
+	public abstract Area toArea();
 	
 }

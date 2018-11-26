@@ -18,13 +18,6 @@ public class Shape7 extends ShapeRoot {
 	RectangularShape rect2;
 	
 	//shape7 半圆
-	{
-		width = 60;
-		hight = 30;
-		
-		startAngle = 0;
-		arcAngle = 180;		
-	}
 	
 	/**
 	 * 
@@ -51,6 +44,27 @@ public class Shape7 extends ShapeRoot {
 		a.subtract(new Area(rect1));
 		a.intersect(new Area(rec));
 		return !a.isEmpty();
+	}
+	
+	/**
+	 * 判断与其他域是否相撞
+	 * @param rec 参数形状
+	 * @return
+	 */
+	public boolean intersects(Area area) {
+		Area as = this.toArea();
+		as.intersect(area);
+		return !as.isEmpty();
+	}
+	
+	/**
+	 * 将目标图形转化为区域
+	 */
+	@Override
+	public Area toArea() {
+		Area a = new Area(rect2);
+		a.subtract(new Area(rect1));
+		return a;
 	}
 	
 	@Override
