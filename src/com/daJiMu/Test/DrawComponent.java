@@ -25,16 +25,16 @@ public class DrawComponent extends JComponent {
 	 */
 	private static final int WALL_X = 50;
 	private static final int WALL_Y = 30;
-	private static final int WALL_WIDTH = 900;
-	private static final int WALL_HEIGHT = 900;
+	private static final int WALL_WIDTH = 600;
+	private static final int WALL_HEIGHT = 600;
 	
 	/**
 	 * 待选区位置(x,y)和宽度WAIT_WIDTH，高度WAIT_HEIGHT
 	 */
-	private static final int WAIT_X = 1000;
+	private static final int WAIT_X = 800;
 	private static final int WAIT_Y = 30;
-	private static final int WAIT_WIDTH = 780;
-	private static final int WAIT_HEIGHT = 720;
+	private static final int WAIT_WIDTH = 600;
+	private static final int WAIT_HEIGHT = 600;
 	
 	/**
 	 * 待选形状的数量

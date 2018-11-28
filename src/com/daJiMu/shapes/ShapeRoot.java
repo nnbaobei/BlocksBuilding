@@ -110,16 +110,16 @@ public abstract class ShapeRoot implements Shape{
 		ShapeRoot  s = null;
 		int num = (int)(Math.random()*10);
 		switch(num) {
-		case 0:s = new Shape1(60,120,centerX,centerY);break;//长方形1
-		case 1:s = new Shape2(120,104,centerX,centerY);break;//正六边形
-		case 2:s = new Shape3(80,60,57,centerX,centerY);break;//梯型
-		case 3:s = new Shape4(120,60,centerX,centerY);break;//等腰直角三角形
-		case 4:s = new Shape5(180,30,centerX,centerY);break;//长方形2
-		case 5:s = new Shape6(80,69,centerX,centerY);break;//等边三角形
-		case 6:s = new Shape5(90,30,centerX,centerY);break;//长方形3
-		case 7:s = new Shape1(60,60,centerX,centerY);break;//正方形
-		case 8:s = new Shape7(60,30,centerX,centerY);break;//半圆
-		case 9:s = new Shape8(120,60,centerX,centerY);break;//拱桥
+		case 0:s = new Shape1(30,60,centerX,centerY);break;//长方形1
+		case 1:s = new Shape2(60,52,centerX,centerY);break;//正六边形
+		case 2:s = new Shape3(40,30,29,centerX,centerY);break;//梯型
+		case 3:s = new Shape4(60,30,centerX,centerY);break;//等腰直角三角形
+		case 4:s = new Shape5(90,15,centerX,centerY);break;//长方形2
+		case 5:s = new Shape6(40,35,centerX,centerY);break;//等边三角形
+		case 6:s = new Shape5(45,15,centerX,centerY);break;//长方形3
+		case 7:s = new Shape1(30,30,centerX,centerY);break;//正方形
+		case 8:s = new Shape7(30,15,centerX,centerY);break;//半圆
+		case 9:s = new Shape8(60,30,centerX,centerY);break;//拱桥
 		}
 		return s;
 	}

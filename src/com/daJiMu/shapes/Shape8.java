@@ -20,8 +20,8 @@ public class Shape8 extends ShapeRoot {
 	RectangularShape rect2;
 	
 	{
-		width = 120;
-		hight = 60;
+		width = 60;
+		hight = 30;
 		
 		startAngle = 0;
 		arcAngle = 180;

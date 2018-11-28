@@ -7,8 +7,8 @@ package com.daJiMu.tools;
  */
 public class Cell {
 	//¸ß¶È120£¬¿í¶È180
-	public static int row = 120;
-	public static int col = 180;
+	public static int row = 60;
+	public static int col = 90;
 	
 	public int centerX;
 	public int centerY;
